@@ -1,0 +1,102 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body{
+      font-family: Ubuntu, sans-serif;
+      background-color: black;
+      padding: 0;
+      margin: 0;
+      color: white;
+    }
+
+    #content{
+        width: 90%;
+        margin: auto;
+        margin-top: 5vh;
+    }
+
+    .country-bar{
+      border: 1px solid #0000AA;
+      background-color:#000055;
+      margin-bottom: 0.5em;
+      font-weight: bold;
+    }
+    .country-tag{
+      margin-right: 1em;
+    }
+    .country-count{
+      float: right;
+    }
+  </style>
+</head>
+<body>
+<div id="content">
+
+</div>
+<script>
+ fetch("http://indiewelle.campusradio.uni-kiel.de/relay/6").then(r => r.json()).then(messages => {
+   fetch("countries.json").then(r => r.json()).then(countries => {
+     var votes = {};
+     var senders = [];
+     messages.forEach(m => {
+       if(m.sender != "WhatsApp"){
+         if(/VOTE/.test(m.text)){
+           var voted_for = "";
+           countries.forEach(c => {
+             if(m.text.indexOf(c) != -1){
+               voted_for = c;
+             }
+           });
+           votes[m.sender] = voted_for;
+           senders.push(m.sender);
+         }
+      }
+     });
+
+     var countries_votes = {};
+     countries.forEach(c => {
+       countries_votes[c] = 0;
+     });
+     var maxvote = 0;
+     senders.forEach(s => {
+       countries_votes[votes[s]]++;
+       if(countries_votes[votes[s]] > maxvote){
+         maxvote = countries_votes[votes[s]];
+       }
+     });
+
+     var container = document.getElementById('content');
+
+     countries.sort((a,b) => {
+       if(countries_votes[a] > countries_votes[b]){
+         return -1;
+       }
+       if(countries_votes[a] == countries_votes[b]){
+         return 0;
+       }
+       return 1;
+     }).forEach(c => {
+       var countrybar = document.createElement('div');
+       countrybar.classList.add('country-bar');
+       if(countries_votes[c] > 0){
+         countrybar.style['width'] = (((maxvote / countries_votes[c]) * 80) + 20) + "%";
+       }else{
+         countrybar.style['width'] = "20%";
+       }
+       var countrytag = document.createElement('span')
+       countrytag.classList.add('country-tag');
+       countrytag.innerText = c;
+       var countrycount = document.createElement('span');
+       countrycount.classList.add('country-count');
+       countrycount.innerText = countries_votes[c];
+       countrybar.appendChild(countrytag);
+       countrybar.appendChild(countrycount);
+       container.appendChild(countrybar);
+     })
+
+   });
+ });
+</script>
+</body>
+</html>
