@@ -1,6 +1,6 @@
-["Israel","Polen", "Weißrussland", "Österreich", "Armenien", "Niederlande", "Moldau",
-"Ungarn", "Italien", "Dänemark", "Portugal", "Aserbaidschan",
-"Kroatien", "Australien", "Griechenland", "Spanien",
-"Norwegen", "Großbritannien", "Zypern", "Rumänien",
-"Deutschland", "Ukraine", "Belgien", "Schweden",
-"Bulgarien", "Frankreich"]
+{"Israel": "is","Polen": "pl", "Weißrussland": "br", "Österreich": "at", "Armenien": "am", "Niederlande": "nl", "Moldau": "mo",
+"Ungarn": "hu", "Italien": "it", "Dänemark": "dk", "Portugal": "pt", "Aserbaidschan": "ad",
+"Kroatien": "cr", "Australien": "au", "Griechenland": "gr", "Spanien": "es",
+"Norwegen": "no", "Großbritannien": "uk", "Zypern": "cy", "Rumänien": "ro",
+"Deutschland": "de", "Ukraine": "ur", "Belgien": "be", "Schweden": "se",
+"Bulgarien": "bu", "Frankreich": "fr"}

@@ -17,10 +17,18 @@
     }
 
     .country-bar{
-      border: 1px solid #0000AA;
+      font-size: 30px;
+      position: fixed;
+      //border: 1px solid #0000AA;
+      left: calc(50vw - 256px);
+      vertical-aling: middle;
       background-color:#000055;
-      margin-bottom: 0.5em;
+      height: 32px;
+      width: 480px;
+      border-radius: 10px;
+      padding: 16px;
       font-weight: bold;
+      transition: top 1s ease-in-out, opacity 1s ease-in-out;
     }
     .country-tag{
       margin-right: 1em;
@@ -35,11 +43,16 @@
 
 </div>
 <script>
- fetch("http://indiewelle.campusradio.uni-kiel.de/relay/6").then(r => r.json()).then(messages => {
-   fetch("countries.json").then(r => r.json()).then(countries => {
+window.lid = 5;
+gmessages = [];
+var ud = () => {
+ fetch("http://indiewelle.campusradio.uni-kiel.de/relay/" + Math.max(6, window.lid + 1)).then(r => r.json()).then(messages => {
+   (countries => {
      var votes = {};
      var senders = [];
-     messages.forEach(m => {
+     gmessages = gmessages.concat(messages);
+     gmessages.forEach(m => {
+       window.lid = m.id;
        if(m.sender != "WhatsApp"){
          if(/VOTE/.test(m.text)){
            var voted_for = "";
@@ -53,7 +66,6 @@
          }
       }
      });
-
      var countries_votes = {};
      countries.forEach(c => {
        countries_votes[c] = 0;
@@ -65,38 +77,53 @@
          maxvote = countries_votes[votes[s]];
        }
      });
-
-     var container = document.getElementById('content');
-
-     countries.sort((a,b) => {
-       if(countries_votes[a] > countries_votes[b]){
-         return -1;
-       }
-       if(countries_votes[a] == countries_votes[b]){
-         return 0;
-       }
-       return 1;
-     }).forEach(c => {
-       var countrybar = document.createElement('div');
-       countrybar.classList.add('country-bar');
-       if(countries_votes[c] > 0){
-         countrybar.style['width'] = (((maxvote / countries_votes[c]) * 80) + 20) + "%";
-       }else{
-         countrybar.style['width'] = "20%";
-       }
-       var countrytag = document.createElement('span')
-       countrytag.classList.add('country-tag');
-       countrytag.innerText = c;
-       var countrycount = document.createElement('span');
-       countrycount.classList.add('country-count');
-       countrycount.innerText = countries_votes[c];
-       countrybar.appendChild(countrytag);
-       countrybar.appendChild(countrycount);
-       container.appendChild(countrybar);
-     })
-
-   });
+     vren(countries_votes);
+   })(Object.keys(gcountries));
  });
+};
+
+var vren = (cv) => {
+  var countries_votes = cv;
+  Object.keys(gcountries).sort((a,b) => (countries_votes[a] < countries_votes[b])).forEach((c, i) => {
+       cbox = document.getElementById(c);
+       if(countries_votes[c]){
+         cc = document.getElementById(c + "-count");
+         cc.innerText = countries_votes[c];
+         cbox.style.top = 8 + i * 72 + "px";
+         cbox.style.opacity = "1.0";
+       }else{
+         cbox.style.top = "100vh";
+         cbox.style.opacity = "0.0";
+       }    
+     });
+}
+
+init = (cb) => {
+  var container = document.getElementById("content");
+  fetch("countries.json").then(r => r.json()).then(countries => {
+    window.gcountries = countries;
+    Object.keys(countries).forEach(c => {
+      var countrybar = document.createElement('div');
+      countrybar.id = c;
+      countrybar.classList.add('country-bar');
+      countrybar.style.opacity = "0.0";
+      countrybar.style.top = "100vh";
+      countrybar.style.backgroundImage = 'url("i/' + gcountries[c] + '.png")';
+      var countrytag = document.createElement('span')
+      countrytag.classList.add('country-tag');
+      countrytag.innerText = c;
+      var countrycount = document.createElement('span');
+      countrycount.classList.add('country-count');
+      countrycount.id = c + "-count";
+      countrybar.appendChild(countrytag);
+      countrybar.appendChild(countrycount);
+      container.appendChild(countrybar);
+    });
+    cb();
+  });
+}
+
+init(() => setInterval(ud, 1000));
 </script>
 </body>
 </html>
